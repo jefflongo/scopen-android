@@ -18,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,11 +30,15 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int MAX_SAMPLES = 10;
+    private static final String TAG = "SCOPEN";
+
+    private static final int MAX_SAMPLES = 100;
     private static final int BG_COLOR = 0xFF47474E;
     private static final int LINE_COLOR = 0xFFFFFACD;
 
-    private int mTimeStep = 1;
+    private float mTimeStep = 0.5f;
+    private float mMaxY = 10;
+    private float mMinY = 0;
 
     private LineChart mChart;
     private LineDataSet mDataSet;
@@ -43,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
         // Configure graph
@@ -61,26 +66,25 @@ public class MainActivity extends AppCompatActivity {
         Legend legend = mChart.getLegend();
         legend.setEnabled(false);
 
+        // Configure y-axis right
+        mChart.getAxisRight().setEnabled(false);
+
         // Configure y-axis left
         YAxis yAxisLeft = mChart.getAxisLeft();
         yAxisLeft.setDrawGridLines(true);
         yAxisLeft.setDrawAxisLine(false);
-        yAxisLeft.setDrawLabels(true);
+        yAxisLeft.setDrawLabels(false);
+        yAxisLeft.setAxisMinimum(mMinY);
+        yAxisLeft.setAxisMaximum(mMaxY);
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
-
-        // Configure y-axis right
-        YAxis yAxisRight = mChart.getAxisRight();
-        yAxisRight.setDrawGridLines(true);
-        yAxisRight.setDrawAxisLine(false);
-        yAxisRight.setDrawLabels(false);
-        yAxisRight.setEnabled(false);
-        //yAxisRight.enableGridDashedLine(10, 10, 0);
 
         // Configure x-axis
         XAxis xAxis = mChart.getXAxis();
         xAxis.setDrawGridLines(true);
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawLabels(false);
+        xAxis.setAxisMinimum(0);
+        xAxis.setAxisMaximum(mTimeStep * (MAX_SAMPLES - 1));
         //xAxis.enableGridDashedLine(10, 10, 0);
 
         // Configure data
@@ -99,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 while (true) {
-                    addEntry(mLineData.getEntryCount() * mTimeStep, new Random().nextInt(10));
+                    addEntry(new Random().nextInt(10));
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -112,14 +116,14 @@ public class MainActivity extends AppCompatActivity {
         thread.start();
     }
 
-    public void addEntry(final float t, final float v) {
+    public void addEntry(final float v) {
         if (mDataSet.getEntryCount() == MAX_SAMPLES) {
             mDataSet.removeFirst();
             for (Entry entry : mDataSet.getValues()) {
                 entry.setX(entry.getX() - mTimeStep);
             }
         }
-        mDataSet.addEntry(new Entry(t, v));
+        mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * mTimeStep, v));
         mDataSet.notifyDataSetChanged();
         mLineData.notifyDataChanged();
         mChart.notifyDataSetChanged();

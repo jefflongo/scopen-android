@@ -19,6 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".DataService"
+            android:label="Scopen Data" >
+        </service>
     </application>
 
 </manifest>

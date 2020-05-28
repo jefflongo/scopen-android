@@ -1,6 +1,10 @@
 package com.example.scopen;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.util.Log;
 import android.view.View;
@@ -43,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private LineChart mChart;
     private LineDataSet mDataSet;
     private LineData mLineData;
+
+    private BroadcastReceiver mMessageReceiver;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -97,23 +104,30 @@ public class MainActivity extends AppCompatActivity {
 
         mLineData = new LineData(mDataSet);
         mChart.setData(mLineData);
-        mChart.invalidate();
 
-        Thread thread = new Thread(new Runnable() {
+        mMessageReceiver = new BroadcastReceiver() {
             @Override
-            public void run() {
-                while (true) {
-                    addEntry(new Random().nextInt(10));
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+            public void onReceive(Context context, Intent intent) {
+                // TODO: there's probably a better choice than 0 here..
+                addEntry(intent.getIntExtra("voltage", 0));
             }
-        });
+        };
 
-        thread.start();
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mMessageReceiver, new IntentFilter("ScopenData"));
+
+        mChart.invalidate();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopService(new Intent(this, DataService.class));
+    }
+
+    protected void onResume() {
+        super.onResume();
+        startService(new Intent(this, DataService.class));
     }
 
     public void addEntry(final float v) {
@@ -124,8 +138,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * mTimeStep, v));
-        mDataSet.notifyDataSetChanged();
-        mLineData.notifyDataChanged();
+
         mChart.notifyDataSetChanged();
         mChart.invalidate();
     }

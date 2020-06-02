@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -16,30 +15,24 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.RelativeLayout;
+import android.widget.Button;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
-public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "SCOPEN";
-
-    private static final int MAX_SAMPLES = 100;
+    private static final int MAX_SAMPLES = 50;
     private static final int BG_COLOR = 0xFF47474E;
     private static final int LINE_COLOR = 0xFFFFFACD;
+
+    private boolean mRunning = false;
 
     private float mTimeStep = 0.5f;
     private float mMaxY = 10;
@@ -58,6 +51,13 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
+        Button button = (Button) findViewById(R.id.runStopButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                onRunStop();
+            }
+        });
+
         // Configure graph
         mChart = (LineChart) findViewById(R.id.chart);
         mChart.setHardwareAccelerationEnabled(true);
@@ -66,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
         mChart.setAutoScaleMinMaxEnabled(false);
         mChart.setPinchZoom(false);
         mChart.setDragEnabled(true);
-        mChart.setScaleEnabled(true);
+        mChart.setScaleEnabled(false);
         mChart.setTouchEnabled(false);
+        mChart.setOnChartValueSelectedListener(this);
 
         // Disable legend
         Legend legend = mChart.getLegend();
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         YAxis yAxisLeft = mChart.getAxisLeft();
         yAxisLeft.setDrawGridLines(true);
         yAxisLeft.setDrawAxisLine(false);
-        yAxisLeft.setDrawLabels(false);
+        yAxisLeft.setDrawLabels(true);
         yAxisLeft.setAxisMinimum(mMinY);
         yAxisLeft.setAxisMaximum(mMaxY);
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
@@ -108,29 +109,49 @@ public class MainActivity extends AppCompatActivity {
         mMessageReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // TODO: there's probably a better choice than 0 here..
-                addEntry(intent.getIntExtra("voltage", 0));
+                if (mRunning) {
+                    // TODO: there's probably a better choice than 0 here..
+                    addEntry(intent.getFloatExtra(Constants.BROADCAST_VOLTAGE, 0));
+                }
             }
         };
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
-                mMessageReceiver, new IntentFilter("ScopenData"));
+                mMessageReceiver, new IntentFilter(Constants.BROADCAST_INTENT));
 
         mChart.invalidate();
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
+        mRunning = false;
         stopService(new Intent(this, DataService.class));
+        super.onPause();
     }
 
     protected void onResume() {
         super.onResume();
+        mRunning = true;
         startService(new Intent(this, DataService.class));
     }
 
-    public void addEntry(final float v) {
+    @Override
+    public void onValueSelected(Entry e, Highlight h) {
+        Log.i(Constants.TAG, "Selected (" + e.getX() + ", " + e.getY() + ")");
+        TextView cursorTextView = findViewById(R.id.cursorTextView);
+        cursorTextView.setVisibility(View.VISIBLE);
+        String display = String.format(java.util.Locale.US, "%.3f", e.getY()) + "V";
+        cursorTextView.setText(display);
+    }
+
+    @Override
+    public void onNothingSelected() {
+        Log.i(Constants.TAG, "Deselected data point");
+        TextView cursorTextView = findViewById(R.id.cursorTextView);
+        cursorTextView.setText("");
+    }
+
+    private void addEntry(final float v) {
         if (mDataSet.getEntryCount() == MAX_SAMPLES) {
             mDataSet.removeFirst();
             for (Entry entry : mDataSet.getValues()) {
@@ -138,8 +159,27 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * mTimeStep, v));
+        Log.d(Constants.TAG, "\nEntries:");
+        for (Entry e : mDataSet.getValues()) {
+            Log.d(Constants.TAG, "(" + e.getX() + ", " + e.getY() + ")");
+        }
 
         mChart.notifyDataSetChanged();
         mChart.invalidate();
+    }
+
+    private void onRunStop() {
+        mRunning = !mRunning;
+        TextView cursorTextView = findViewById(R.id.cursorTextView);
+        if (mRunning) {
+            cursorTextView.setVisibility(View.GONE);
+            mDataSet.setDrawHighlightIndicators(false);
+            mChart.setTouchEnabled(false);
+        } else {
+            cursorTextView.setText("");
+            cursorTextView.setVisibility(View.VISIBLE);
+            mDataSet.setDrawHighlightIndicators(true);
+            mChart.setTouchEnabled(true);
+        }
     }
 }

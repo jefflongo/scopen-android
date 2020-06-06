@@ -1,11 +1,15 @@
 package com.example.scopen;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
+import android.media.Image;
 import android.os.Bundle;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -19,11 +23,16 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
@@ -44,6 +53,14 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
     private BroadcastReceiver mMessageReceiver;
 
+    private LocalBroadcastManager mScopenServiceBroadcast;
+
+    ScopenCommService.CommServiceInterfaceClass mCommService;
+    SideMenu sideMenu;
+    private ScopenReciever reciever;
+    byte ConnectionState;
+    byte Command;
+    boolean mBound = false;
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +68,14 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
-        Button button = (Button) findViewById(R.id.runStopButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                onRunStop();
-            }
-        });
-
+//        Button button = (Button) findViewById(R.id.runStopStart);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                onRunStop();
+//            }
+//        });
+        //Menu Init
+        sideMenu = new SideMenu(MainActivity.this);
         // Configure graph
         mChart = (LineChart) findViewById(R.id.chart);
         mChart.setHardwareAccelerationEnabled(true);
@@ -119,7 +137,18 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter(Constants.BROADCAST_INTENT));
 
+        mScopenServiceBroadcast = LocalBroadcastManager.getInstance(this);
+        reciever = new ScopenReciever(this);
+        mScopenServiceBroadcast.registerReceiver(reciever, new IntentFilter("Scopen"));
+
         mChart.invalidate();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, ScopenCommService.class);
+        getApplicationContext().bindService(intent,mScopenServiceConnection,Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -133,6 +162,13 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         super.onResume();
         mRunning = true;
         startService(new Intent(this, DataService.class));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mScopenServiceBroadcast.unregisterReceiver(reciever);
+
     }
 
     @Override
@@ -182,4 +218,70 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             mChart.setTouchEnabled(true);
         }
     }
+
+
+    class ScopenReciever extends BroadcastReceiver{
+        MainActivity mainActivity;
+        public ScopenReciever(Activity activity){
+            mainActivity = (MainActivity) activity;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.hasExtra("ScopenConnection")){
+                mainActivity.processScopenConnectionState(intent.getByteExtra("ScopenConnection", Constants.ERROR_BYTE));
+            }
+            else if(intent.hasExtra("ScopenCommand")){
+                mainActivity.processScopenCommand(intent.getByteExtra("ScopenCommand", Constants.ERROR_BYTE));
+            }
+        }
+    }
+
+    private ServiceConnection mScopenServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mCommService = (ScopenCommService.CommServiceInterfaceClass) service;
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBound = false;
+        }
+    };
+
+    private void processScopenCommand(byte command){
+        switch (command){
+            case Constants.DATA:
+                break;
+            case Constants.BATTERY_REPORTED:
+                break;
+            case Constants.SWIPE_UP:
+                break;
+            case Constants.SWIPE_DOWN:
+                break;
+            case Constants.TAP:
+                break;
+        }
+    }
+
+    private void processScopenConnectionState(byte connectionState){
+        switch (connectionState){
+            case Constants.DISCONNECTED:
+                sideMenu.updateConnectButtonState(false);
+                break;
+            case Constants.CONNECTED:
+                sideMenu.updateConnectButtonState(true);
+                break;
+            case Constants.SCANNING:
+                break;
+            case Constants.STOPPED_SCAN:
+                if(!mCommService.getScopens().isEmpty()){
+                    sideMenu.setScopenScanResult(mCommService.getScopens().get(0));
+                }
+                break;
+        }
+    }
+
+
 }

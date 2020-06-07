@@ -49,4 +49,9 @@ public class GainParameters {
     return VOLTLABEL[currentIndex];
   }
 
+  public void setCurrentIndex(int index) {
+    if(index>0 && index < 9){
+      currentIndex = index;
+    }
+  }
 }

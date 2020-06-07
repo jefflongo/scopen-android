@@ -16,8 +16,6 @@ public class ScopenCommService extends Service {
     public CmdManager cmdManager;
     public CommEventsInterface commEventsInterface;
     public CmdEventsInterface cmdEventsInterface;
-
-    byte [] scopenData;
     byte [] batteryStatus;
 
     @Override
@@ -60,8 +58,7 @@ public class ScopenCommService extends Service {
         cmdEventsInterface = new CmdEventsInterface() {
             @Override
             public void onDataReceived(byte[] data) {
-                scopenData = data;
-                sendCommand(Constants.DATA);
+                sendDataToPlotter(data);
             }
 
             @Override
@@ -87,6 +84,12 @@ public class ScopenCommService extends Service {
         };
     }
 
+    private void sendDataToPlotter(byte [] scopenData){
+        Intent toServiceBroadcast = new Intent("DataPlotter");
+        toServiceBroadcast.putExtra("Data", scopenData);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(toServiceBroadcast);
+    }
+
     private void sendConnectionState(byte connectionState){
         Intent toActivityBroadcast = new Intent("Scopen");
         toActivityBroadcast.putExtra("ScopenConnection", connectionState);
@@ -110,12 +113,12 @@ public class ScopenCommService extends Service {
     }
 
     public class CommServiceInterfaceClass extends Binder {
-        public byte[] getScopenData(){
-            return scopenData;
-        }
         public void startSampling(){cmdManager.sendStartCommand();}
         public void stopSampling(){cmdManager.sendStopCommand();}
-        public void updateVoltDiv(int gainIndex){cmdManager.sendSetVoltCommand(gainIndex);}
+        public void updateVoltDiv(int gainIndex){
+            cmdManager.sendSetVoltCommand(gainIndex);
+        }
+        public void updateTimeDiv(int speedIndex, int bufferLength){cmdManager.sendSetSampleParasCommand(speedIndex,bufferLength);}
         public byte[] getBatteryStatus(){
             return batteryStatus;
         }

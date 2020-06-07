@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private static final int LINE_COLOR = 0xFFFFFACD;
 
     private boolean mRunning = false;
+    private boolean toggleVoltTime = false; //true: pen swipes update Volt, false: pen swipes update time
+    private boolean mBoundScopenComm = false;
+    private boolean mBoundDataPlotter = false;
 
     private float mTimeStep = 0.5f;
     private float mMaxY = 10;
@@ -53,11 +56,15 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
     private BroadcastReceiver mMessageReceiver;
     private LocalBroadcastManager mScopenServiceBroadcast;
-    ScopenCommService.CommServiceInterfaceClass mCommService;
-    SideMenu sideMenu;
+
+    private SideMenu sideMenu;
     private ScopenReciever reciever;
-    boolean mBound = false;
-    GainParameters gainParameters = new GainParameters();
+
+    public GainParameters gainParameters = new GainParameters(); //stores current volt/div being used and associated values
+    public SampleParameters sampleParameters = new SampleParameters(0);  //stores current time/div being used and associated values
+
+    public ScopenCommService.CommServiceInterfaceClass mCommService; //interface to access ScopenCommService
+    public DataService.DataServiceInterfaceClass mDataService; //interface to access DataService
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -147,26 +154,36 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         super.onStart();
         Intent intent = new Intent(this, ScopenCommService.class);
         getApplicationContext().bindService(intent,mScopenServiceConnection,Context.BIND_AUTO_CREATE);
+        intent = new Intent(this, DataService.class);
+        getApplicationContext().bindService(intent, mDataPlotterServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onPause() {
         mRunning = false;
-        stopService(new Intent(this, DataService.class));
+        //stopService(new Intent(this, DataService.class));
         super.onPause();
     }
 
     protected void onResume() {
         super.onResume();
         mRunning = true;
-        startService(new Intent(this, DataService.class));
+        //startService(new Intent(this, DataService.class));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         mScopenServiceBroadcast.unregisterReceiver(reciever);
+        if(mBoundScopenComm)
+            unbindService(mScopenServiceConnection);
+        if(mBoundDataPlotter)
+            unbindService(mDataPlotterServiceConnection);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -202,8 +219,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mChart.invalidate();
     }
 
-    private void onRunStop() {
-        mRunning = !mRunning;
+    public void onRunStop(boolean running) { //changed to public so that SideMenu could access
+        mRunning = running;
         TextView cursorTextView = findViewById(R.id.cursorTextView);
         if (mRunning) {
             cursorTextView.setVisibility(View.GONE);
@@ -218,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     }
 
 
-    class ScopenReciever extends BroadcastReceiver{
+    class ScopenReciever extends BroadcastReceiver{ //handles the intent broadcast from ScopenCommService
         MainActivity mainActivity;
         public ScopenReciever(Activity activity){
             mainActivity = (MainActivity) activity;
@@ -235,31 +252,54 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         }
     }
 
-    private ServiceConnection mScopenServiceConnection = new ServiceConnection() {
+    private ServiceConnection mScopenServiceConnection = new ServiceConnection() { //binds main activity to ScopenCommService
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mCommService = (ScopenCommService.CommServiceInterfaceClass) service;
-            mBound = true;
+            mBoundScopenComm = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mBound = false;
+            mBoundScopenComm = false;
+        }
+    };
+
+    private ServiceConnection mDataPlotterServiceConnection = new ServiceConnection() { //binds main activity to DataService
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mDataService = (DataService.DataServiceInterfaceClass) service;
+            mBoundDataPlotter = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mBoundDataPlotter = false;
         }
     };
 
     private void processScopenCommand(byte command){
         switch (command){
-            case Constants.DATA:
-                mCommService.getScopenData();
-                break;
             case Constants.BATTERY_REPORTED:
                 break;
             case Constants.SWIPE_UP:
+                if(toggleVoltTime){
+                    sideMenu.incVoltDivLabel();
+                }
+                else {
+                    sideMenu.incTimeDivLabel();
+                }
                 break;
             case Constants.SWIPE_DOWN:
+                if(toggleVoltTime){
+                    sideMenu.decVoltDivLabel();
+                }
+                else{
+                    sideMenu.decTimeDivLabel();
+                }
                 break;
             case Constants.TAP:
+                toggleVoltTime = !toggleVoltTime;
                 break;
         }
     }

@@ -42,7 +42,7 @@
             android:layout_height="match_parent"
             android:animateLayoutChanges="true"
             android:animationCache="false"
-            android:background="#302F2F">
+            android:background="#85000000">
 
             <LinearLayout
                 android:id="@+id/networkMenuContent"
@@ -50,7 +50,7 @@
                 android:layout_height="match_parent"
                 android:animateLayoutChanges="true"
                 android:animationCache="false"
-                android:background="#4A232222"
+                android:background="#00232222"
                 android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent">
 

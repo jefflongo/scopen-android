@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * This class handles processing the sampled data.
  */
-public class SampleProcessor {
+public class  SampleProcessor {
 
   /**
    * The numbers of ADC used. This is determined by the Scopen hardware and software design.

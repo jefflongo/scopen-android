@@ -1,50 +1,63 @@
 package com.example.scopen;
 
-import android.animation.LayoutTransition;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.graphics.Color;
-import android.media.Image;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class SideMenu {
-    boolean scanMenuOn = false;
-    boolean isConnected = false;
-    boolean samplingOn = false;
-    Button connect;
-    ImageButton startSample;
-    MainActivity mainActivity;
-    TextView scanResult;
-    ScopenInfo scopenInfo;
-    ConstraintLayout sideMenuStatic;
-    final Button startScan;
+    private boolean scanMenuOn = false;
+    private boolean isConnected = false;
+    private boolean samplingOn = false;
+
+    private final Button connect;
+    private final Button startScan;
+
+    private final ImageButton startSample;
+
+    private final MainActivity mainActivity;
+
+    private final TextView scanResult;
+    private final TextView timeLabel;
+    private final TextView voltLabel;
+
+    private ScopenInfo scopenInfo;
+
+    private final ConstraintLayout sideMenuStatic;
+
     public SideMenu(Activity activity){
         //Main menu buttons
         mainActivity = (MainActivity) activity;
-
-        startSample= activity.findViewById(R.id.runStopStart);
-        startSample.animate().translationY(-150);
-        sideMenuStatic = activity.findViewById(R.id.sideMenuStatic);
-        sideMenuStatic.animate().translationY(-150);
+        //Button to open network menu
         ImageButton searchButton = activity.findViewById(R.id.search);
+        //Buttons to change division settings
         ImageButton voltDivInc = activity.findViewById(R.id.voltDivInc);
         ImageButton voltDivDec = activity.findViewById(R.id.voltDivDec);
         ImageButton timeDivInc = activity.findViewById(R.id.timeDivInc);
         ImageButton timeDivDec = activity.findViewById(R.id.timeDivDec);
-        final TextView voltLabel = activity.findViewById(R.id.voltLabel);
+        //Configs startSample button when Scopen is disconnected
+        startSample= activity.findViewById(R.id.runStopStart);
+        startSample.animate().translationY(-150);
+        sideMenuStatic = activity.findViewById(R.id.sideMenuStatic);
+        sideMenuStatic.animate().translationY(-150);
+        //labels for volt/div and time/div
+        voltLabel = activity.findViewById(R.id.voltLabel);
+        timeLabel = activity.findViewById(R.id.timeLabel);
+        //start network scan for scopen
         startScan = activity.findViewById(R.id.startScan);
+        //connect butto
         connect  = activity.findViewById(R.id.connect);
-        scanResult = activity.findViewById(R.id.scanResult);
         connect.setVisibility(View.INVISIBLE);
+        //displays scopen we found
+        scanResult = activity.findViewById(R.id.scanResult);
+
         final ConstraintLayout networkMenu = activity.findViewById(R.id.networkMenu);
+        //animations for networkMenu
         final ValueAnimator networkMenuOpen = ValueAnimator.ofInt(networkMenu.getWidth(), 400);
         networkMenuOpen.setDuration(300);
         networkMenuOpen.setInterpolator(new DecelerateInterpolator());
@@ -79,7 +92,6 @@ public class SideMenu {
             }
         });
 
-
         startSample.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,10 +99,13 @@ public class SideMenu {
                     mainActivity.mCommService.stopSampling();
                     startSample.setImageResource(android.R.drawable.ic_media_play);
                     samplingOn = false;
+                    mainActivity.onRunStop(samplingOn);
                 }else{
+                    onStartSetup();
                     mainActivity.mCommService.startSampling();
                     startSample.setImageResource(android.R.drawable.ic_media_pause);
                     samplingOn = true;
+                    mainActivity.onRunStop(samplingOn);
                 }
             }
         });
@@ -119,25 +134,59 @@ public class SideMenu {
         timeDivInc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mainActivity.mCommService.;
+                incTimeDivLabel();
+            }
+        });
+
+        timeDivDec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                decTimeDivLabel();
             }
         });
 
         voltDivInc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                voltLabel.setText(mainActivity.gainParameters.incVoltDiv());
-                mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
-            }
-        });
-        voltDivDec.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                voltLabel.setText(mainActivity.gainParameters.decVoltDiv());
-                mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+                incVoltDivLabel();
             }
         });
 
+        voltDivDec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                decVoltDivLabel();
+            }
+        });
+
+    }
+
+    public void incTimeDivLabel(){
+        timeLabel.setText(mainActivity.sampleParameters.incTimeDiv());
+        mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
+        mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
+                mainActivity.sampleParameters.getSampleLength());
+
+    }
+
+    public void decTimeDivLabel(){
+        timeLabel.setText(mainActivity.sampleParameters.decTimeDiv());
+        mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
+        mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
+                mainActivity.sampleParameters.getSampleLength());
+
+    }
+
+    public void decVoltDivLabel(){
+        voltLabel.setText(mainActivity.gainParameters.decVoltDiv());
+        mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
+        mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+    }
+
+    public void incVoltDivLabel(){
+        voltLabel.setText(mainActivity.gainParameters.incVoltDiv());
+        mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
+        mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
     }
 
     public void setScopenScanResult(ScopenInfo scopenInfo){
@@ -148,6 +197,14 @@ public class SideMenu {
     public void updateScanButton(){
         startScan.setText("Scan");
         startScan.setClickable(true);
+    }
+
+    private void onStartSetup(){
+//        mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+//        mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
+//                mainActivity.sampleParameters.getSampleLength());
+        mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
+        mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
     }
 
     public void updateConnectButtonState(boolean connected){

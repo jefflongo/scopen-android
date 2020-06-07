@@ -15,6 +15,30 @@ public class SampleParameters {
     private double sampleSpeed = SAMPLE_SPEED[SAMPLE_SPEED_HIGHEST];
     private int sampleLength = SAMPLE_LENGTH[SAMPLE_SPEED_HIGHEST];
     private int select = SAMPLE_SPEED_HIGHEST;
+    private int currentIndex = 0;
+    private final String[] timeDivOptions = {
+            "10ns", "20ns", "50ns",
+            "100ns", "200ns", "500ns",
+            "1us", "2us", "5us",
+            "10us", "20us", "50us",
+            "100us", "200us", "500us",
+            "1ms", "2ms", "5ms",
+            "10ms", "20ms", "50ms",
+            "100ms", "200ms", "500ms",
+            "1s", "2s", "5s", "10s"
+    };
+
+    private final double[] timeDivValues = {
+            0.000000010, 0.000000020, 0.000000050,
+            0.000000100, 0.000000200, 0.000000500,
+            0.000001000, 0.000002000, 0.000005000,
+            0.000010000, 0.000020000, 0.000050000,
+            0.000100000, 0.000200000, 0.000500000,
+            0.001000000, 0.002000000, 0.005000000,
+            0.010000000, 0.020000000, 0.050000000,
+            0.100000000, 0.200000000, 0.500000000,
+            1.000000000, 2.000000000, 10.000000000
+    };
 
     /**
      * Constructor that returns a sample configuration.
@@ -87,4 +111,32 @@ public class SampleParameters {
         }
         return speedLevel;
     }
+
+    public String incTimeDiv(){
+        if(currentIndex < 27){
+            currentIndex++;
+        }
+        this.setSpeedLevel(lookUpSpeedLevel(timeDivValues[currentIndex]));
+        return timeDivOptions[currentIndex];
+    }
+
+    public String decTimeDiv(){
+        if(currentIndex > 0){
+            currentIndex--;
+        }
+        this.setSpeedLevel(lookUpSpeedLevel(timeDivValues[currentIndex]));
+        return timeDivOptions[currentIndex];
+    }
+
+    public void setCurrentIndex(int index){
+        if(index>0&&index<27){
+            currentIndex = index;
+            this.setSpeedLevel(lookUpSpeedLevel(timeDivValues[currentIndex]));
+        }
+    }
+
+    public int getIndex(){
+        return currentIndex;
+    }
+
 }

@@ -12,22 +12,24 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 public class SideMenu {
     boolean scanMenuOn = false;
     boolean isConnected = false;
+    boolean samplingOn = false;
     Button connect;
     MainActivity mainActivity;
     TextView scanResult;
 
     ScopenInfo scopenInfo;
 
+
     public SideMenu(Activity activity){
         //Main menu buttons
         mainActivity = (MainActivity) activity;
-        ImageButton startSample = activity.findViewById(R.id.runStopStart);
+        final ImageButton startSample = activity.findViewById(R.id.runStopStart);
         ImageButton searchButton = activity.findViewById(R.id.search);
         ImageButton voltDivInc = activity.findViewById(R.id.voltDivInc);
         ImageButton voltDivDec = activity.findViewById(R.id.voltDivDec);
         ImageButton timeDivInc = activity.findViewById(R.id.timeDivInc);
         ImageButton timeDivDec = activity.findViewById(R.id.timeDivDec);
-
+        final TextView voltLabel = activity.findViewById(R.id.voltLabel);
         Button startScan = activity.findViewById(R.id.startScan);
 
         connect  = activity.findViewById(R.id.connect);
@@ -50,17 +52,19 @@ public class SideMenu {
             }
         });
 
-        startScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
         startSample.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.mCommService.startSampling();
+                if(samplingOn){
+                    mainActivity.mCommService.stopSampling();
+                    startSample.setImageResource(android.R.drawable.ic_media_play);
+                    samplingOn = false;
+                }else{
+                    mainActivity.mCommService.startSampling();
+                    startSample.setImageResource(android.R.drawable.ic_media_pause);
+                    samplingOn = true;
+                }
             }
         });
 
@@ -81,6 +85,29 @@ public class SideMenu {
                 }
             }
         });
+
+        timeDivInc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //mainActivity.mCommService.;
+            }
+        });
+
+        voltDivInc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                voltLabel.setText(mainActivity.gainParameters.incVoltDiv());
+                mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+            }
+        });
+        voltDivDec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                voltLabel.setText(mainActivity.gainParameters.decVoltDiv());
+                mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+            }
+        });
+
     }
 
     public void setScopenScanResult(ScopenInfo scopenInfo){

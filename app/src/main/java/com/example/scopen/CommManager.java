@@ -66,7 +66,7 @@ public class CommManager {
    * Up Stream parameters
    * @note These parameters are closely related to the ESP32 send parameters.
    */
-  public static final int ESP32_MAX_TRANSMIT_SIZE = 4096;
+  public static final int ESP32_MAX_TRANSMIT_SIZE = 1436;
 
 
   // State machine
@@ -437,7 +437,7 @@ public class CommManager {
         ByteBuffer typeField = ByteBuffer.wrap(header, HEADER_SIZE_FEILD, 1);
         int dataSize = lengthField.getInt();
         int type = typeField.get();
-        if (!CmdManager.verifyCommandType(type) || dataSize < 0)
+        if (!CmdManager.verifyCommandType(type) || dataSize < 0 || dataSize > 20000)
           continue;
 //         NOTE: Checked! Received right data.
 //         System.out.println("Received header. Body size: " + dataSize + " Type: " + type);
@@ -445,7 +445,7 @@ public class CommManager {
         // Send the acknowledgement
         try {
           outputStream.write('A');
-          outputStream.flush();
+          //outputStream.flush();
         } catch (Exception exception) {
           System.err.println(exception.getMessage());
           System.err.println(exception.getStackTrace());
@@ -478,7 +478,7 @@ public class CommManager {
           // Replay with ACK
           try {
             outputStream.write('A');
-            outputStream.flush();
+            //outputStream.flush();
           } catch (Exception exception) {
             System.out.println("[TCP RECV] Failed to send ACK. Received: " + filledSize + " Left: " + leftSize);
             System.err.println(exception.getMessage());

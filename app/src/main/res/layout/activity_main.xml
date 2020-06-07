@@ -106,25 +106,26 @@
                 app:layout_constraintTop_toBottomOf="@+id/runStopStart"
                 app:srcCompat="@android:drawable/ic_menu_search" />
 
+            <TextView
+                android:id="@+id/timeLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="1ms"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toTopOf="@+id/timeDivDec" />
+
             <ImageButton
                 android:id="@+id/timeDivInc"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:background="#00FFFFFF"
-                app:layout_constraintBottom_toTopOf="@+id/timeIcon"
+                app:layout_constraintBottom_toTopOf="@+id/timeLabel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:srcCompat="@android:drawable/arrow_up_float" />
-
-            <ImageView
-                android:id="@+id/timeIcon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/timeDivDec"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_recent_history" />
 
             <ImageButton
                 android:id="@+id/timeDivDec"
@@ -137,23 +138,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:srcCompat="@android:drawable/arrow_down_float" />
 
+            <TextView
+                android:id="@+id/voltLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="1V"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toTopOf="@+id/voltDivDec" />
+
             <ImageButton
                 android:id="@+id/voltDivInc"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:background="#00FFFFFF"
-                app:layout_constraintBottom_toTopOf="@+id/voltIcon"
+                app:layout_constraintBottom_toTopOf="@+id/voltLabel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:srcCompat="@android:drawable/arrow_up_float" />
-
-            <ImageView
-                android:id="@+id/voltIcon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/voltDivDec"
-                app:srcCompat="@android:drawable/ic_input_add"
-                tools:layout_editor_absoluteX="16dp" />
 
             <ImageButton
                 android:id="@+id/voltDivDec"

@@ -52,15 +52,15 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private LineData mLineData;
 
     private BroadcastReceiver mMessageReceiver;
-
     private LocalBroadcastManager mScopenServiceBroadcast;
-
     ScopenCommService.CommServiceInterfaceClass mCommService;
     SideMenu sideMenu;
     private ScopenReciever reciever;
     byte ConnectionState;
     byte Command;
     boolean mBound = false;
+    GainParameters gainParameters = new GainParameters();
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private void processScopenCommand(byte command){
         switch (command){
             case Constants.DATA:
+                mCommService.getScopenData();
                 break;
             case Constants.BATTERY_REPORTED:
                 break;

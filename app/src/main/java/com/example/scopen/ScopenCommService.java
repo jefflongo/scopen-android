@@ -17,19 +17,6 @@ public class ScopenCommService extends Service {
     public CommEventsInterface commEventsInterface;
     public CmdEventsInterface cmdEventsInterface;
 
-    byte ConnectionState;
-    static final byte DISCONNECTED = 0x00;
-    static final byte CONNECTED = 0x01;
-    static final byte SCANNING = 0x02;
-    static final byte STOPPED_SCAN = 0x03;
-
-    byte Command;
-    static final byte DATA = 0x00;
-    static final byte BATTERY_REPORTED = 0x01;
-    static final byte SWIPE_UP = 0x02;
-    static final byte SWIPE_DOWN = 0x03;
-    static final byte TAP = 0x04;
-
     byte [] scopenData;
     byte [] batteryStatus;
 
@@ -50,22 +37,22 @@ public class ScopenCommService extends Service {
 
             @Override
             public void onDisconnected() {
-                sendConnectionState(DISCONNECTED);
+                sendConnectionState(Constants.DISCONNECTED);
             }
 
             @Override
             public void onConnected() {
-                sendConnectionState(CONNECTED);
+                sendConnectionState(Constants.CONNECTED);
             }
 
             @Override
             public void onScanStarted() {
-                sendConnectionState(SCANNING);
+                sendConnectionState(Constants.SCANNING);
             }
 
             @Override
             public void onScanFinished() {
-                sendConnectionState(STOPPED_SCAN);
+                sendConnectionState(Constants.STOPPED_SCAN);
             }
         };
     }
@@ -73,29 +60,29 @@ public class ScopenCommService extends Service {
         cmdEventsInterface = new CmdEventsInterface() {
             @Override
             public void onDataReceived(byte[] data) {
-                sendCommand(DATA);
                 scopenData = data;
+                sendCommand(Constants.DATA);
             }
 
             @Override
             public void onBatteryReported(byte[] data) {
-                sendCommand(BATTERY_REPORTED);
+                sendCommand(Constants.BATTERY_REPORTED);
                 batteryStatus = data;
             }
 
             @Override
             public void onSwipeUp(byte[] data) {
-                sendCommand(SWIPE_UP);
+                sendCommand(Constants.SWIPE_UP);
             }
 
             @Override
             public void onSwipeDown(byte[] data) {
-                sendCommand(SWIPE_DOWN);
+                sendCommand(Constants.SWIPE_DOWN);
             }
 
             @Override
             public void onChangeSelect(byte[] data) {
-                sendCommand(TAP);
+                sendCommand(Constants.TAP);
             }
         };
     }
@@ -128,6 +115,7 @@ public class ScopenCommService extends Service {
         }
         public void startSampling(){cmdManager.sendStartCommand();}
         public void stopSampling(){cmdManager.sendStopCommand();}
+        public void updateVoltDiv(int gainIndex){cmdManager.sendSetVoltCommand(gainIndex);}
         public byte[] getBatteryStatus(){
             return batteryStatus;
         }

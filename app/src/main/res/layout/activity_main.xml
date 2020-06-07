@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -39,11 +40,17 @@
             android:id="@+id/networkMenu"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:animationCache="false"
             android:background="#302F2F">
 
             <LinearLayout
+                android:id="@+id/networkMenuContent"
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:animationCache="false"
+                android:background="#4A232222"
                 android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent">
 
@@ -51,10 +58,11 @@
                     android:id="@+id/textView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="100dp"
                     android:gravity="center_horizontal"
                     android:text="Network Config"
                     android:textColor="#FFFFFF"
-                    android:textSize="30sp" />
+                    android:textSize="25sp" />
 
                 <Button
                     android:id="@+id/startScan"
@@ -66,8 +74,10 @@
                     android:id="@+id/scanResult"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:text="..."
-                    android:textColor="#FDFDFD" />
+                    android:textColor="#FDFDFD"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/connect"
@@ -94,79 +104,84 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@android:drawable/ic_media_play" />
 
-            <ImageButton
-                android:id="@+id/search"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginTop="10dp"
-                android:background="#00FFFFFF"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.571"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/runStopStart"
-                app:srcCompat="@android:drawable/ic_menu_search" />
-
-            <TextView
-                android:id="@+id/timeLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="1ms"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toTopOf="@+id/timeDivDec" />
-
-            <ImageButton
-                android:id="@+id/timeDivInc"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:background="#00FFFFFF"
-                app:layout_constraintBottom_toTopOf="@+id/timeLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/arrow_up_float" />
-
-            <ImageButton
-                android:id="@+id/timeDivDec"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:background="#00FFFFFF"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/sideMenuStatic"
+                android:layout_width="61dp"
+                android:layout_height="356dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.571"
                 app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/arrow_down_float" />
+                app:layout_constraintTop_toBottomOf="@+id/runStopStart">
 
-            <TextView
-                android:id="@+id/voltLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="1V"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toTopOf="@+id/voltDivDec" />
+                <ImageButton
+                    android:id="@+id/timeDivDec"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:srcCompat="@android:drawable/arrow_down_float" />
 
-            <ImageButton
-                android:id="@+id/voltDivInc"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:background="#00FFFFFF"
-                app:layout_constraintBottom_toTopOf="@+id/voltLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/arrow_up_float" />
+                <TextView
+                    android:id="@+id/timeLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="1ms"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/timeDivDec" />
 
-            <ImageButton
-                android:id="@+id/voltDivDec"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginBottom="10dp"
-                android:background="#00FFFFFF"
-                app:layout_constraintBottom_toTopOf="@+id/timeDivInc"
-                app:srcCompat="@android:drawable/arrow_down_float"
-                tools:layout_editor_absoluteX="0dp" />
+                <ImageButton
+                    android:id="@+id/timeDivInc"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/timeLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:srcCompat="@android:drawable/arrow_up_float" />
+
+                <ImageButton
+                    android:id="@+id/search"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="20dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@android:drawable/ic_menu_search" />
+
+                <ImageButton
+                    android:id="@+id/voltDivInc"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/voltLabel"
+                    app:srcCompat="@android:drawable/arrow_up_float" />
+
+                <ImageButton
+                    android:id="@+id/voltDivDec"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/timeDivInc"
+                    app:srcCompat="@android:drawable/arrow_down_float" />
+
+                <TextView
+                    android:id="@+id/voltLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="1V"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/voltDivDec" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

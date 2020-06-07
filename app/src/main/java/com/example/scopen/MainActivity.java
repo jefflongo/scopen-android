@@ -56,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     ScopenCommService.CommServiceInterfaceClass mCommService;
     SideMenu sideMenu;
     private ScopenReciever reciever;
-    byte ConnectionState;
-    byte Command;
     boolean mBound = false;
     GainParameters gainParameters = new GainParameters();
 
@@ -277,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             case Constants.SCANNING:
                 break;
             case Constants.STOPPED_SCAN:
+                sideMenu.updateScanButton();
                 if(!mCommService.getScopens().isEmpty()){
                     sideMenu.setScopenScanResult(mCommService.getScopens().get(0));
                 }

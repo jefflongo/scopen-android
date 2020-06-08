@@ -16,6 +16,9 @@ public class SampleParameters {
     private int sampleLength = SAMPLE_LENGTH[SAMPLE_SPEED_HIGHEST];
     private int select = SAMPLE_SPEED_HIGHEST;
     private int currentIndex = 0;
+
+    private static final int NUM_TIME_DIVS = 27;
+
     private final String[] timeDivOptions = {
             "10ns", "20ns", "50ns",
             "100ns", "200ns", "500ns",
@@ -112,15 +115,19 @@ public class SampleParameters {
         return speedLevel;
     }
 
-    public String incTimeDiv(){
-        if(currentIndex < 27){
+    public String getTimeDivLabel() {
+        return timeDivOptions[currentIndex];
+    }
+
+    public String incTimeDiv() {
+        if(currentIndex < NUM_TIME_DIVS - 1){
             currentIndex++;
         }
         this.setSpeedLevel(lookUpSpeedLevel(timeDivValues[currentIndex]));
         return timeDivOptions[currentIndex];
     }
 
-    public String decTimeDiv(){
+    public String decTimeDiv() {
         if(currentIndex > 0){
             currentIndex--;
         }
@@ -129,7 +136,7 @@ public class SampleParameters {
     }
 
     public void setCurrentIndex(int index){
-        if(index>0&&index<27){
+        if(index >= 0 && index < NUM_TIME_DIVS) {
             currentIndex = index;
             this.setSpeedLevel(lookUpSpeedLevel(timeDivValues[currentIndex]));
         }

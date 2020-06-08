@@ -35,6 +35,9 @@ public class GainParameters {
     return VOLTDIV[currentIndex];
   }
 
+  public String getVoltDivLabel() {
+    return VOLTLABEL[currentIndex];
+  }
   public String incVoltDiv(){
     if(currentIndex < 9){
       currentIndex++;

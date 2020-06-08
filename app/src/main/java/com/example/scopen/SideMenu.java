@@ -50,15 +50,18 @@ public class SideMenu {
         timeLabel = activity.findViewById(R.id.timeLabel);
         //start network scan for scopen
         startScan = activity.findViewById(R.id.startScan);
-        //connect butto
+        //connect button
         connect  = activity.findViewById(R.id.connect);
         connect.setVisibility(View.INVISIBLE);
         //displays scopen we found
         scanResult = activity.findViewById(R.id.scanResult);
 
+        timeLabel.setText(mainActivity.sampleParameters.getTimeDivLabel());
+        voltLabel.setText(mainActivity.gainParameters.getVoltDivLabel());
+
         final ConstraintLayout networkMenu = activity.findViewById(R.id.networkMenu);
         //animations for networkMenu
-        final ValueAnimator networkMenuOpen = ValueAnimator.ofInt(networkMenu.getWidth(), 400);
+        final ValueAnimator networkMenuOpen = ValueAnimator.ofInt(networkMenu.getWidth(), 500);
         networkMenuOpen.setDuration(300);
         networkMenuOpen.setInterpolator(new DecelerateInterpolator());
         networkMenuOpen.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -68,7 +71,7 @@ public class SideMenu {
                 networkMenu.requestLayout();
             }
         });
-        final ValueAnimator networkMenuClose = ValueAnimator.ofInt(400, 0);
+        final ValueAnimator networkMenuClose = ValueAnimator.ofInt(500, 0);
         networkMenuClose.setDuration(300);
         networkMenuClose.setInterpolator(new DecelerateInterpolator());
         networkMenuClose.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -99,14 +102,13 @@ public class SideMenu {
                     mainActivity.mCommService.stopSampling();
                     startSample.setImageResource(android.R.drawable.ic_media_play);
                     samplingOn = false;
-                    mainActivity.onRunStop(samplingOn);
                 }else{
                     onStartSetup();
                     mainActivity.mCommService.startSampling();
                     startSample.setImageResource(android.R.drawable.ic_media_pause);
                     samplingOn = true;
-                    mainActivity.onRunStop(samplingOn);
                 }
+                mainActivity.onRunStop(samplingOn);
             }
         });
 

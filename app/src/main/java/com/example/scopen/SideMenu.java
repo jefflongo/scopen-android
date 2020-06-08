@@ -103,7 +103,7 @@ public class SideMenu {
                     startSample.setImageResource(android.R.drawable.ic_media_play);
                     samplingOn = false;
                 }else{
-                    onStartSetup();
+                    //onStartSetup();
                     mainActivity.mCommService.startSampling();
                     startSample.setImageResource(android.R.drawable.ic_media_pause);
                     samplingOn = true;

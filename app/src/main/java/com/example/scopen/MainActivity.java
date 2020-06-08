@@ -240,10 +240,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         if (mDataSet.getEntryCount() == currentWindowSize) {
             mDataSet.removeFirst();
             for (Entry entry : mDataSet.getValues()) {
-                entry.setX(entry.getX() - (float)sampleParameters.getTimeDiv());
+                entry.setX(entry.getX() - (float)sampleParameters.getSamplePeriod());
             }
         }
-        mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * (float)sampleParameters.getTimeDiv(), v));
+        mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * (float)sampleParameters.getSamplePeriod(), v));
         Log.d(Constants.TAG, "\nEntries:");
         for (Entry e : mDataSet.getValues()) {
             Log.d(Constants.TAG, "(" + e.getX() + ", " + e.getY() + ")");

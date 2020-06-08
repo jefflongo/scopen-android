@@ -48,6 +48,7 @@ public class SampleParameters {
      * @param select
      */
     public SampleParameters(int select) {
+        setCurrentIndex(select);
         setSpeedLevel(lookUpSpeedLevel(select));
     }
 
@@ -104,7 +105,7 @@ public class SampleParameters {
         if (timediv <= 0.00005) {               // Check if it's smaller than 50us
             speedLevel = SAMPLE_SPEED_HIGHEST;
         } else if (timediv <= 0.0005) {         // Check if the division is samller than 500us
-            speedLevel = SAMPLE_SPEED_MEDIUM;
+            speedLevel = SAMPLE_SPEED_HIGH;
         } else if (timediv <= 0.005) {          // Check if the division is smaller than 5ms
             speedLevel = SAMPLE_SPEED_MEDIUM;
         } else if (timediv <= 0.05) {           // Check if the division is smaller than 50ms

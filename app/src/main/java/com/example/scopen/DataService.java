@@ -77,16 +77,14 @@ public class DataService extends Service {
     private class DataProcessor implements Runnable{
         private void processRawData(){
              if(rawData!=null) {
-
                 rawData = SampleProcessor.formatSamplesInOrder(rawData);
-
                 processedData = SampleProcessor.convertSamplesToVolt(rawData, gainParameters.getCurrentGain());
                 int currentWindowSize = (int) Math.ceil(10 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
                 int startindex = processedData.length/2 - currentWindowSize/2;
                 int endIndex =  processedData.length/2 + currentWindowSize/2;
                 for(int i = startindex; i<endIndex; i++) {
-                    broadcastData(Constants.BROADCAST_VOLTAGE, (float) processedData[i]);
                     lockData.acquireUninterruptibly();
+                    broadcastData(Constants.BROADCAST_VOLTAGE, (float) processedData[i]);
                 }
 
             }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:animateLayoutChanges="true">
 
     <com.github.mikephil.charting.charts.LineChart
@@ -36,6 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"
+        android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -43,7 +45,6 @@
             android:id="@+id/networkMenu"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="15dp"
             android:animateLayoutChanges="true"
             android:animationCache="false"
             android:background="#85000000">
@@ -95,14 +96,12 @@
             android:id="@+id/MainMenu"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="15dp"
             android:background="#000000">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/sideMenuStatic"
                 android:layout_width="65dp"
                 android:layout_height="match_parent"
-                android:layout_marginTop="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

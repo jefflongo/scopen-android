@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:animateLayoutChanges="true">
 
     <com.github.mikephil.charting.charts.LineChart
@@ -36,6 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"
+        android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -96,67 +98,44 @@
             android:layout_height="match_parent"
             android:background="#000000">
 
-            <ImageButton
-                android:id="@+id/runStopStart"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginTop="10dp"
-                android:background="#00FFFFFF"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/ic_media_play" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/sideMenuStatic"
-                android:layout_width="61dp"
-                android:layout_height="356dp"
+                android:layout_width="65dp"
+                android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/runStopStart">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageButton
-                    android:id="@+id/timeDivDec"
+                    android:id="@+id/runStopStart"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="0dp"
                     android:background="#00FFFFFF"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:srcCompat="@android:drawable/arrow_down_float" />
-
-                <TextView
-                    android:id="@+id/timeLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="1ms"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/timeDivDec" />
-
-                <ImageButton
-                    android:id="@+id/timeDivInc"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:background="#00FFFFFF"
-                    app:layout_constraintBottom_toTopOf="@+id/timeLabel"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:srcCompat="@android:drawable/arrow_up_float" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@android:drawable/ic_media_play" />
 
                 <ImageButton
                     android:id="@+id/search"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
-                    android:layout_marginTop="20dp"
                     android:background="#00FFFFFF"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/runStopStart"
                     app:srcCompat="@android:drawable/ic_menu_search" />
+
+                <TextView
+                    android:id="@+id/voltLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/voltDivDec" />
 
                 <ImageButton
                     android:id="@+id/voltDivInc"
@@ -170,20 +149,41 @@
                     android:id="@+id/voltDivDec"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="0dp"
                     android:background="#00FFFFFF"
                     app:layout_constraintBottom_toTopOf="@+id/timeDivInc"
                     app:srcCompat="@android:drawable/arrow_down_float" />
 
                 <TextView
-                    android:id="@+id/voltLabel"
+                    android:id="@+id/timeLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="1V"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
-                    app:layout_constraintBottom_toTopOf="@+id/voltDivDec" />
+                    app:layout_constraintBottom_toTopOf="@+id/timeDivDec" />
+
+                <ImageButton
+                    android:id="@+id/timeDivDec"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginBottom="0dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:srcCompat="@android:drawable/arrow_down_float" />
+
+                <ImageButton
+                    android:id="@+id/timeDivInc"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="#00FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/timeLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:srcCompat="@android:drawable/arrow_up_float" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

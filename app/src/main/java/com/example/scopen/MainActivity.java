@@ -38,6 +38,8 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
     private static final int MAX_SAMPLES = 50;
+    private static final int NUM_STEPS_X = 10;
+    private static final int NUM_STEPS_Y = 10;
     private static final int BG_COLOR = 0xFF47474E;
     private static final int LINE_COLOR = 0xFFFFFACD;
 
@@ -53,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private float mMinY = 0;
     private float mMaxX = 10;
     private float mMinX = 0;
-
 
     private LineChart mChart;
     private LineDataSet mDataSet;
@@ -111,10 +112,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         YAxis yAxisLeft = mChart.getAxisLeft();
         yAxisLeft.setDrawGridLines(true);
         yAxisLeft.setDrawAxisLine(false);
-        yAxisLeft.setDrawLabels(true);
+        yAxisLeft.setDrawLabels(false);
         yAxisLeft.setAxisMinimum(mMinY);
         yAxisLeft.setAxisMaximum(mMaxY);
-        yAxisLeft.setLabelCount(10);
+        yAxisLeft.setLabelCount(NUM_STEPS_Y, true);
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
 
         // Configure x-axis
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         xAxis.setDrawLabels(false);
         xAxis.setAxisMinimum(mMinX);
         xAxis.setAxisMaximum(mMaxX);
-        xAxis.setLabelCount(10);
+        xAxis.setLabelCount(NUM_STEPS_X, true);
         //xAxis.enableGridDashedLine(10, 10, 0);
 
         // Configure data

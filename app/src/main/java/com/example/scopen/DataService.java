@@ -16,6 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 public class DataService extends Service {
     private boolean mShouldRunThread = true;
@@ -23,9 +24,10 @@ public class DataService extends Service {
     private LocalBroadcastManager mScopenServiceBroadcast;
     private ScopenReciever reciever;
     byte [] rawData;
-    ArrayList<Double> processedData;
-    private SampleParameters sampleParameters = new SampleParameters(0);
+    double [] processedData;
+    private SampleParameters sampleParameters = new SampleParameters(15);
     private GainParameters gainParameters = new GainParameters();
+    private Semaphore lockData = new Semaphore(1);
     private final IBinder binder = new DataServiceInterfaceClass();
     @Override
     public IBinder onBind(Intent intent) {
@@ -39,21 +41,23 @@ public class DataService extends Service {
         reciever = new ScopenReciever(this);
         mScopenServiceBroadcast.registerReceiver(reciever, new IntentFilter("DataPlotter"));
         Log.d(Constants.TAG, "Service created");
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (mShouldRunThread) {
-                    broadcastData(Constants.BROADCAST_VOLTAGE, new Random().nextFloat() * 10);
-                    try {
-                        Thread.sleep(30);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        Thread dataPlotter = new Thread(new DataProcessor(),"data");
+        dataPlotter.start();
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (mShouldRunThread) {
+//                    broadcastData(Constants.BROADCAST_VOLTAGE, new Random().nextFloat() * 10);
+//                    try {
+//                        Thread.sleep(30);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
 
-        thread.start();
+        //thread.start();
     }
     class ScopenReciever extends BroadcastReceiver {
         Service service;
@@ -72,12 +76,25 @@ public class DataService extends Service {
 
     private class DataProcessor implements Runnable{
         private void processRawData(){
-            byte[] orderedData = SampleProcessor.formatSamplesInOrder(rawData);
-            rawData = null;
-            processedData = SampleProcessor.convertSamplesToVolt(orderedData,gainParameters.getCurrentGain());
+             if(rawData!=null) {
+
+                rawData = SampleProcessor.formatSamplesInOrder(rawData);
+
+                processedData = SampleProcessor.convertSamplesToVolt(rawData, gainParameters.getCurrentGain());
+                int currentWindowSize = (int) Math.ceil(10 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
+                int startindex = processedData.length/2 - currentWindowSize/2;
+                int endIndex =  processedData.length/2 + currentWindowSize/2;
+                for(int i = startindex; i<endIndex; i++) {
+                    broadcastData(Constants.BROADCAST_VOLTAGE, (float) processedData[i]);
+                    lockData.acquireUninterruptibly();
+                }
+
+            }
         }
         public void run(){
-            processRawData();
+            while(mProcessorThread) {
+                processRawData();
+            }
         }
     }
 
@@ -103,5 +120,6 @@ public class DataService extends Service {
     public class DataServiceInterfaceClass extends Binder {
         public void setSampleParametersIndex(int index){sampleParameters.setCurrentIndex(index);}
         public void setGainParametersIndex(int index){gainParameters.setCurrentIndex(index);}
+        public void finishedPlot() {lockData.release();}
     }
 }

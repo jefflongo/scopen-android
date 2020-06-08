@@ -48,7 +48,7 @@ public class SampleParameters {
      * @param select
      */
     public SampleParameters(int select) {
-        setSpeedLevel(select);
+        setSpeedLevel(lookUpSpeedLevel(select));
     }
 
     /**

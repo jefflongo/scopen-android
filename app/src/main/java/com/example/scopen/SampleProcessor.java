@@ -45,16 +45,16 @@ public class  SampleProcessor {
    * @param gain  The gain value at this voltage index.
    * @return
    */
-  public static ArrayList<Double> convertSamplesToVolt(byte[] data, double gain) {
+  public static double [] convertSamplesToVolt(byte[] data, double gain) {
     if (data == null) {
       System.err.println("[SAMPLE PROCESSOR] Data is null");
     }
     double v;
     final double ref = 1.8;
-    ArrayList<Double> voltValues = new ArrayList<>();
+    double [] voltValues = new double[data.length];
     for (int i = 0; i < data.length; i++) {
       v = ((Byte.toUnsignedInt(data[i]) * 1.0 - 127) / 255.0) * (ref * 2) / gain;
-      voltValues.add(v);
+      voltValues[i] = v;
     }
     return voltValues;
   }

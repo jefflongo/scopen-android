@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private static final int BG_COLOR = 0xFF47474E;
     private static final int LINE_COLOR = 0xFFFFFACD;
 
+    private int currentWindowSize = 1000;
+
     private boolean mRunning = false;
     private boolean toggleVoltTime = false; //true: pen swipes update Volt, false: pen swipes update time
     private boolean mBoundScopenComm = false;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private ScopenReciever reciever;
 
     public GainParameters gainParameters = new GainParameters(); //stores current volt/div being used and associated values
-    public SampleParameters sampleParameters = new SampleParameters(0);  //stores current time/div being used and associated values
+    public SampleParameters sampleParameters = new SampleParameters(15);  //stores current time/div being used and associated values
 
     public ScopenCommService.CommServiceInterfaceClass mCommService; //interface to access ScopenCommService
     public DataService.DataServiceInterfaceClass mDataService; //interface to access DataService
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             public void onReceive(Context context, Intent intent) {
                 if (mRunning) {
                     // TODO: there's probably a better choice than 0 here..
-                    addEntry(intent.getFloatExtra(Constants.BROADCAST_VOLTAGE, 0));
+                    addEntryFromPen(intent.getFloatExtra(Constants.BROADCAST_VOLTAGE, 0));
                 }
             }
         };
@@ -210,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         TextView cursorTextView = findViewById(R.id.cursorTextView);
         cursorTextView.setText("");
     }
-
+    
     private void addEntry(final float v) {
         if (mDataSet.getEntryCount() == MAX_SAMPLES) {
             mDataSet.removeFirst();
@@ -226,6 +228,24 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
         mChart.notifyDataSetChanged();
         mChart.invalidate();
+    }
+
+    private void addEntryFromPen(final float v) {
+        if (mDataSet.getEntryCount() == currentWindowSize) {
+            mDataSet.removeFirst();
+            for (Entry entry : mDataSet.getValues()) {
+                entry.setX(entry.getX() - (float)sampleParameters.getTimeDiv());
+            }
+        }
+        mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * (float)sampleParameters.getTimeDiv(), v));
+        Log.d(Constants.TAG, "\nEntries:");
+        for (Entry e : mDataSet.getValues()) {
+            Log.d(Constants.TAG, "(" + e.getX() + ", " + e.getY() + ")");
+        }
+
+        mChart.notifyDataSetChanged();
+        mChart.invalidate();
+        mDataService.finishedPlot();
     }
 
     public void onRunStop(boolean running) { //changed to public so that SideMenu could access
@@ -337,6 +357,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mMinX = 0;
         xAxis.setAxisMinimum(mMinX);
         xAxis.setAxisMaximum(mMaxX);
+        currentWindowSize = (int) Math.ceil(10 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
         mChart.invalidate();
     }
     public void updateChartVoltDiv(){

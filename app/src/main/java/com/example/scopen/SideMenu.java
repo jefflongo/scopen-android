@@ -206,21 +206,37 @@ public class SideMenu {
     }
 
     private void onStartSetup(){
-//        mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
-//        mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
-//                mainActivity.sampleParameters.getSampleLength());
+        try{
+            Thread.sleep(500);
+        }catch (InterruptedException e){
+
+        }
+        mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+        try{
+            Thread.sleep(500);
+        }catch (InterruptedException e){
+
+        }
+        mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
+                mainActivity.sampleParameters.getSampleLength());
+        try{
+            Thread.sleep(500);
+        }catch (InterruptedException e){
+
+        }
         mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
         mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
     }
 
     public void updateConnectButtonState(boolean connected){
         if(connected){
-            connect.setText("Disconnect");
             sideMenuStatic.animate().translationY(0);
             startSample.animate().translationY(0);
 
             startSample.setClickable(true);
             isConnected = true;
+            onStartSetup();
+            connect.setText("Disconnect");
         }else{
             connect.setText("Connect");
             startSample.animate().translationY(-150);

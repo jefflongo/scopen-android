@@ -35,6 +35,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.concurrent.Semaphore;
+
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
     private static final int MAX_SAMPLES = 50;
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
     public ScopenCommService.CommServiceInterfaceClass mCommService; //interface to access ScopenCommService
     public DataService.DataServiceInterfaceClass mDataService; //interface to access DataService
+
+    private Semaphore lockPlotter = new Semaphore(1);
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -232,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     }
 
     private void addEntryFromPen(final float v) {
+        lockPlotter.acquireUninterruptibly();
         if (mDataSet.getEntryCount() == currentWindowSize) {
             mDataSet.removeFirst();
             for (Entry entry : mDataSet.getValues()) {
@@ -247,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mChart.notifyDataSetChanged();
         mChart.invalidate();
         mDataService.finishedPlot();
+        lockPlotter.release();
     }
 
     public void onRunStop(boolean running) { //changed to public so that SideMenu could access
@@ -353,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         }
     }
     public void updateChartTimeDiv(){
+        lockPlotter.acquireUninterruptibly();
         XAxis xAxis = mChart.getXAxis();
         mMaxX = (float)sampleParameters.getTimeDiv()*10;
         mMinX = 0;
@@ -360,14 +367,17 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         xAxis.setAxisMaximum(mMaxX);
         currentWindowSize = (int) Math.ceil(10 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
         mChart.invalidate();
+        lockPlotter.release();
     }
     public void updateChartVoltDiv(){
+        lockPlotter.acquireUninterruptibly();
         YAxis yAxis = mChart.getAxisLeft();
         mMaxY = (float)gainParameters.getVoltDiv()*5;
         mMinY = (float)gainParameters.getVoltDiv()*-5;
         yAxis.setAxisMinimum(mMinY);
         yAxis.setAxisMaximum(mMaxY);
         mChart.invalidate();
+       lockPlotter.release();
     }
 
 

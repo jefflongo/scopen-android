@@ -120,6 +120,7 @@ public class DataService extends Service {
     public class DataServiceInterfaceClass extends Binder {
         public void setSampleParametersIndex(int index){sampleParameters.setCurrentIndex(index);}
         public void setGainParametersIndex(int index){gainParameters.setCurrentIndex(index);}
+        public void aquirePlotterSem(){lockData.acquireUninterruptibly();}
         public void finishedPlot() {lockData.release();}
     }
 }

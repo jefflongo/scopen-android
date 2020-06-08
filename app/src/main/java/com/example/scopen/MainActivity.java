@@ -49,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     private float mTimeStep = 0.5f;
     private float mMaxY = 10;
     private float mMinY = 0;
+    private float mMaxX = 10;
+    private float mMinX = 0;
+
 
     private LineChart mChart;
     private LineDataSet mDataSet;
@@ -101,21 +104,27 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mChart.getAxisRight().setEnabled(false);
 
         // Configure y-axis left
+        mMaxY = (float)gainParameters.getVoltDiv()*5;
+        mMinY = (float)gainParameters.getVoltDiv()*-5;
         YAxis yAxisLeft = mChart.getAxisLeft();
         yAxisLeft.setDrawGridLines(true);
         yAxisLeft.setDrawAxisLine(false);
         yAxisLeft.setDrawLabels(true);
         yAxisLeft.setAxisMinimum(mMinY);
         yAxisLeft.setAxisMaximum(mMaxY);
+        yAxisLeft.setLabelCount(10);
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
 
         // Configure x-axis
+        mMaxX = (float)sampleParameters.getTimeDiv()*5;
+        mMinX = (float)sampleParameters.getTimeDiv()*-5;
         XAxis xAxis = mChart.getXAxis();
         xAxis.setDrawGridLines(true);
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawLabels(false);
-        xAxis.setAxisMinimum(0);
-        xAxis.setAxisMaximum(mTimeStep * (MAX_SAMPLES - 1));
+        xAxis.setAxisMinimum(mMinX);
+        xAxis.setAxisMaximum(mMaxX);
+        xAxis.setLabelCount(10);
         //xAxis.enableGridDashedLine(10, 10, 0);
 
         // Configure data
@@ -321,6 +330,22 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
                 }
                 break;
         }
+    }
+    public void updateChartTimeDiv(){
+        XAxis xAxis = mChart.getXAxis();
+        mMaxX = (float)sampleParameters.getTimeDiv()*5;
+        mMinX = (float)sampleParameters.getTimeDiv()*-5;
+        xAxis.setAxisMinimum(mMinX);
+        xAxis.setAxisMaximum(mMaxX);
+        mChart.invalidate();
+    }
+    public void updateChartVoltDiv(){
+        YAxis yAxis = mChart.getAxisLeft();
+        mMaxY = (float)gainParameters.getVoltDiv()*5;
+        mMinY = (float)gainParameters.getVoltDiv()*-5;
+        yAxis.setAxisMinimum(mMinY);
+        yAxis.setAxisMaximum(mMaxY);
+        mChart.invalidate();
     }
 
 

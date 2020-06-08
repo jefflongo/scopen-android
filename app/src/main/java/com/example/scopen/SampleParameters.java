@@ -93,7 +93,7 @@ public class SampleParameters {
     public int getSampleLength() {
         return sampleLength;
     }
-
+    public double getTimeDiv() { return timeDivValues[currentIndex];}
     /**
      * This defines what speed level should be chosen under given time division setting.
      * @param timediv time division value in seconds.

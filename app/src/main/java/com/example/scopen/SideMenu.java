@@ -168,6 +168,7 @@ public class SideMenu {
         mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
         mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
                 mainActivity.sampleParameters.getSampleLength());
+        mainActivity.updateChartTimeDiv();
 
     }
 
@@ -176,6 +177,7 @@ public class SideMenu {
         mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
         mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
                 mainActivity.sampleParameters.getSampleLength());
+        mainActivity.updateChartTimeDiv();
 
     }
 
@@ -183,12 +185,14 @@ public class SideMenu {
         voltLabel.setText(mainActivity.gainParameters.decVoltDiv());
         mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
         mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+        mainActivity.updateChartVoltDiv();
     }
 
     public void incVoltDivLabel(){
         voltLabel.setText(mainActivity.gainParameters.incVoltDiv());
         mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
         mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
+        mainActivity.updateChartVoltDiv();
     }
 
     public void setScopenScanResult(ScopenInfo scopenInfo){
@@ -225,6 +229,7 @@ public class SideMenu {
             isConnected = false;
         }
     }
+
 
 
 }

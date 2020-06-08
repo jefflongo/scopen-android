@@ -65,8 +65,7 @@ public class DataService extends Service {
         public void onReceive(Context context, Intent intent) {
             if(intent.hasExtra("Data")){
                 rawData = intent.getByteArrayExtra("Data");
-                Thread udpRecvThread = new Thread(new DataProcessor(), "Data Thread");
-                udpRecvThread.start();
+
             }
         }
     }

@@ -117,8 +117,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
 
         // Configure x-axis
-        mMaxX = (float)sampleParameters.getTimeDiv()*5;
-        mMinX = (float)sampleParameters.getTimeDiv()*-5;
+        mMaxX = (float)sampleParameters.getTimeDiv()*10;
+        mMinX = 0;
         XAxis xAxis = mChart.getXAxis();
         xAxis.setDrawGridLines(true);
         xAxis.setDrawAxisLine(false);
@@ -334,8 +334,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     }
     public void updateChartTimeDiv(){
         XAxis xAxis = mChart.getXAxis();
-        mMaxX = (float)sampleParameters.getTimeDiv()*5;
-        mMinX = (float)sampleParameters.getTimeDiv()*-5;
+        mMaxX = (float)sampleParameters.getTimeDiv()*10;
+        mMinX = 0;
         xAxis.setAxisMinimum(mMinX);
         xAxis.setAxisMaximum(mMaxX);
         mChart.invalidate();

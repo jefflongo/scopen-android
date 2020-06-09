@@ -22,7 +22,6 @@ import java.util.concurrent.Semaphore;
 public class DataService extends Service {
     private boolean mShouldRunThread = true;
     private boolean mProcessorThread = true;
-    private boolean stopCurrent = false;
     private LocalBroadcastManager mScopenServiceBroadcast;
     private ScopenReciever reciever;
     byte [] rawData;
@@ -78,7 +77,7 @@ public class DataService extends Service {
 
     private class DataProcessor implements Runnable{
         private void processRawData(){
-             if(rawData!=null) {
+             if(rawData!=null && rawData.length > 0) {
                 rawData = SampleProcessor.formatSamplesInOrder(rawData);
                 processedData = SampleProcessor.convertSamplesToVolt(rawData, gainParameters.getCurrentGain());
                 rawData = null;
@@ -127,8 +126,6 @@ public class DataService extends Service {
     public class DataServiceInterfaceClass extends Binder {
         public void setSampleParametersIndex(int index){sampleParameters.setCurrentIndex(index);}
         public void setGainParametersIndex(int index){gainParameters.setCurrentIndex(index);}
-        public void aquirePlotterSem(){lockData.acquireUninterruptibly();}
-        public void resetData(){stopCurrent = true;}
         public void finishedPlot() {lockData.release();}
     }
 }

@@ -139,8 +139,9 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mDataSet.setDrawValues(false);
         mDataSet.setColor(LINE_COLOR);
         mDataSet.setCircleColor(LINE_COLOR);
-        mDataSet.setLineWidth(3f);
-        mDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        mDataSet.setCircleRadius(2f);
+        mDataSet.setLineWidth(1f);
+        mDataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
         mLineData = new LineData(mDataSet);
         mChart.setData(mLineData);
@@ -154,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
                     if(intent.hasExtra(Constants.BROADCAST_VOLTAGE_ALL)){
                         addMultipleEntries(intent.getDoubleArrayExtra(Constants.BROADCAST_VOLTAGE_ALL));
                     }
+                }else{
+                    mDataService.finishedPlot();
                 }
             }
         };
@@ -384,8 +387,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         xAxis.setLabelCount(NUM_STEPS_X);
         if(mRunning) {
             mDataSet.clear();
-            mChart.notifyDataSetChanged();
         }
+        mChart.notifyDataSetChanged();
         mChart.invalidate();
         lockPlotter.release();
     }

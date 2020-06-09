@@ -175,9 +175,12 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, ScopenCommService.class);
-        getApplicationContext().bindService(intent,mScopenServiceConnection,Context.BIND_AUTO_CREATE);
+        bindService(intent,mScopenServiceConnection,Context.BIND_AUTO_CREATE);
+        mBoundScopenComm = true;
+
         intent = new Intent(this, DataService.class);
-        getApplicationContext().bindService(intent, mDataPlotterServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(intent, mDataPlotterServiceConnection, Context.BIND_AUTO_CREATE);
+        mBoundDataPlotter = true;
     }
 
     @Override
@@ -197,10 +200,14 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     protected void onStop() {
         super.onStop();
         mScopenServiceBroadcast.unregisterReceiver(reciever);
-        if(mBoundScopenComm)
+        if(mBoundScopenComm) {
             unbindService(mScopenServiceConnection);
-        if(mBoundDataPlotter)
+            mBoundScopenComm = false;
+        }
+        if(mBoundDataPlotter) {
             unbindService(mDataPlotterServiceConnection);
+            mBoundDataPlotter = false;
+        }
     }
 
     @Override
@@ -310,12 +317,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mCommService = (ScopenCommService.CommServiceInterfaceClass) service;
-            mBoundScopenComm = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mBoundScopenComm = false;
         }
     };
 
@@ -323,12 +328,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mDataService = (DataService.DataServiceInterfaceClass) service;
-            mBoundDataPlotter = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mBoundDataPlotter = false;
         }
     };
 

@@ -1,16 +1,29 @@
 package com.example.scopen;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.DisplayMetrics;
+import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import org.w3c.dom.Text;
 
 public class SideMenu {
     private boolean scanMenuOn = false;
@@ -25,22 +38,34 @@ public class SideMenu {
     private final MainActivity mainActivity;
 
     private final TextView scanResult;
-    private final TextView timeLabel;
-    private final TextView voltLabel;
+//    private final TextView timeLabel;
+//    private final TextView voltLabel;
+
+    private final TextSwitcher voltLabelSwitcher;
+    private final TextSwitcher timeLabelSwitcher;
 
     private ScopenInfo scopenInfo;
 
+    private final Animation animUpIn;
+    private final Animation animUpOut;
+
+
+    private final Animation animDownOut;
+    private final Animation animDownIn;
+
     private final ConstraintLayout sideMenuStatic;
+    private final ConstraintLayout mainMenu;
 
     public static float convertDpToPixel(float dp, Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    public SideMenu(Activity activity){
+    public SideMenu(final Activity activity){
         //Main menu buttons
         mainActivity = (MainActivity) activity;
         //Button to open network menu
         ImageButton searchButton = activity.findViewById(R.id.search);
+        //searchButton.setColorFilter(Color.WHITE);
         //Buttons to change division settings
         ImageButton voltDivInc = activity.findViewById(R.id.voltDivInc);
         ImageButton voltDivDec = activity.findViewById(R.id.voltDivDec);
@@ -52,8 +77,8 @@ public class SideMenu {
         sideMenuStatic = activity.findViewById(R.id.sideMenuStatic);
         sideMenuStatic.animate().translationY(-150);
         //labels for volt/div and time/div
-        voltLabel = activity.findViewById(R.id.voltLabel);
-        timeLabel = activity.findViewById(R.id.timeLabel);
+//        voltLabel = activity.findViewById(R.id.voltLabel);
+//        timeLabel = activity.findViewById(R.id.timeLabel);
         //start network scan for scopen
         startScan = activity.findViewById(R.id.startScan);
         //connect button
@@ -62,9 +87,9 @@ public class SideMenu {
         //displays scopen we found
         scanResult = activity.findViewById(R.id.scanResult);
 
-        timeLabel.setText(mainActivity.sampleParameters.getTimeDivLabel());
-        voltLabel.setText(mainActivity.gainParameters.getVoltDivLabel());
-
+//        timeLabel.setText(mainActivity.sampleParameters.getTimeDivLabel());
+//        voltLabel.setText(mainActivity.gainParameters.getVoltDivLabel());
+        mainMenu = activity.findViewById(R.id.MainMenu);
         final ConstraintLayout networkMenu = activity.findViewById(R.id.networkMenu);
         //animations for networkMenu
         final ValueAnimator networkMenuOpen = ValueAnimator.ofInt(
@@ -89,17 +114,65 @@ public class SideMenu {
             public void onAnimationUpdate(ValueAnimator animation) {
                 networkMenu.getLayoutParams().width = (int) animation.getAnimatedValue();
                 networkMenu.requestLayout();
+                if((int)animation.getAnimatedValue() < 2){
+                    mainMenu.setBackground(activity.getDrawable(R.drawable.network_menu_rounded));
+                }
             }
         });
 
+        voltLabelSwitcher = activity.findViewById(R.id.voltLabelSwitcher);
+        timeLabelSwitcher = activity.findViewById(R.id.timeLabelSwitcher);
+
+        timeLabelSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView t  = new TextView(mainActivity);
+                t.setGravity(Gravity.CENTER_HORIZONTAL);
+                t.setTextSize(18);
+                t.setTextColor(Color.WHITE);
+                return t;
+            }
+        });
+
+        voltLabelSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView t  = new TextView(mainActivity);
+                t.setGravity(Gravity.CENTER_HORIZONTAL);
+                t.setTextSize(18);
+                t.setTextColor(Color.WHITE);
+                return t;
+            }
+        });
+
+        timeLabelSwitcher.setText(mainActivity.sampleParameters.getTimeDivLabel());
+        voltLabelSwitcher.setText(mainActivity.gainParameters.getVoltDivLabel());
+
+        animUpOut = AnimationUtils.loadAnimation(activity,
+                R.anim.slide_up_out);
+        animUpIn = AnimationUtils.loadAnimation(activity,
+                R.anim.slide_up);
+        animDownOut = AnimationUtils.loadAnimation(activity,
+                R.anim.slide_down_out);
+        animDownIn = AnimationUtils.loadAnimation(activity,
+                R.anim.slide_down);
+
+        animDownIn.setDuration(200);
+        animDownOut.setDuration(200);
+        animUpIn.setDuration(200);
+        animUpOut.setDuration(200);
+
+
         searchButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                if(!scanMenuOn) {
+                if (!scanMenuOn) {
+                    mainMenu.setBackgroundColor(Color.BLACK);
                     networkMenuOpen.start();
-                }
-                else {
+                } else {
                     networkMenuClose.start();
+
                 }
                 scanMenuOn = !scanMenuOn;
             }
@@ -175,7 +248,9 @@ public class SideMenu {
     }
 
     public void incTimeDivLabel(){
-        timeLabel.setText(mainActivity.sampleParameters.incTimeDiv());
+        timeLabelSwitcher.setOutAnimation(animUpOut);
+        timeLabelSwitcher.setInAnimation(animUpIn);
+        timeLabelSwitcher.setText(mainActivity.sampleParameters.incTimeDiv());
         mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
         mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
                 mainActivity.sampleParameters.getSampleLength());
@@ -184,7 +259,9 @@ public class SideMenu {
     }
 
     public void decTimeDivLabel(){
-        timeLabel.setText(mainActivity.sampleParameters.decTimeDiv());
+        timeLabelSwitcher.setOutAnimation(animDownOut);
+        timeLabelSwitcher.setInAnimation(animDownIn);
+        timeLabelSwitcher.setText(mainActivity.sampleParameters.decTimeDiv());
         mainActivity.mDataService.setSampleParametersIndex(mainActivity.sampleParameters.getIndex());
         mainActivity.mCommService.updateTimeDiv(mainActivity.sampleParameters.getSpeedLevel(),
                 mainActivity.sampleParameters.getSampleLength());
@@ -193,14 +270,18 @@ public class SideMenu {
     }
 
     public void decVoltDivLabel(){
-        voltLabel.setText(mainActivity.gainParameters.decVoltDiv());
+        voltLabelSwitcher.setOutAnimation(animDownOut);
+        voltLabelSwitcher.setInAnimation(animDownIn);
+        voltLabelSwitcher.setText(mainActivity.gainParameters.decVoltDiv());
         mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
         mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
         mainActivity.updateChartVoltDiv();
     }
 
     public void incVoltDivLabel(){
-        voltLabel.setText(mainActivity.gainParameters.incVoltDiv());
+        voltLabelSwitcher.setOutAnimation(animUpOut);
+        voltLabelSwitcher.setInAnimation(animUpIn);
+        voltLabelSwitcher.setText(mainActivity.gainParameters.incVoltDiv());
         mainActivity.mDataService.setGainParametersIndex(mainActivity.gainParameters.getIndex());
         mainActivity.mCommService.updateVoltDiv(mainActivity.gainParameters.getIndex());
         mainActivity.updateChartVoltDiv();

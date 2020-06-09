@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
-import android.media.Image;
 import android.os.Bundle;
+
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -23,19 +23,17 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.concurrent.Semaphore;
+
+
 
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
@@ -82,13 +80,6 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
-
-//        Button button = (Button) findViewById(R.id.runStopStart);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                onRunStop();
-//            }
-//        });
         //Menu Init
         sideMenu = new SideMenu(MainActivity.this);
         // Configure graph
@@ -119,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         yAxisLeft.setDrawLabels(false);
         yAxisLeft.setAxisMinimum(mMinY);
         yAxisLeft.setAxisMaximum(mMaxY);
-        yAxisLeft.setLabelCount(NUM_STEPS_Y, true);
+        yAxisLeft.setLabelCount(NUM_STEPS_Y);
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
 
         // Configure x-axis
@@ -131,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         xAxis.setDrawLabels(false);
         xAxis.setAxisMinimum(mMinX);
         xAxis.setAxisMaximum(mMaxX);
-        xAxis.setLabelCount(NUM_STEPS_X, true);
+        xAxis.setLabelCount(NUM_STEPS_X);
         //xAxis.enableGridDashedLine(10, 10, 0);
 
         // Configure data
@@ -156,7 +147,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
                         addMultipleEntries(intent.getDoubleArrayExtra(Constants.BROADCAST_VOLTAGE_ALL));
                     }
                 }else{
-                    mDataService.finishedPlot();
+                    if(mBoundDataPlotter)
+                        mDataService.finishedPlot();
                 }
             }
         };
@@ -170,6 +162,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
         mChart.invalidate();
     }
+
+
+
+
 
     @Override
     protected void onStart() {
@@ -257,10 +253,6 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             }
         }
         mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * (float)sampleParameters.getSamplePeriod(), v));
-//        Log.d(Constants.TAG, "\nEntries:");
-//        for (Entry e : mDataSet.getValues()) {
-//            Log.d(Constants.TAG, "(" + e.getX() + ", " + e.getY() + ")");
-//        }
 
         mChart.notifyDataSetChanged();
         mChart.invalidate();
@@ -283,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     public void onRunStop(boolean running) { //changed to public so that SideMenu could access
         mRunning = running;
         TextView cursorTextView = findViewById(R.id.cursorTextView);
+        //cursorTextView.setBackgroundColor(Color.BLACK);
         if (mRunning) {
             cursorTextView.setVisibility(View.GONE);
             mDataSet.setDrawHighlightIndicators(false);

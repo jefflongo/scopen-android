@@ -39,6 +39,7 @@ public class Splash extends AppCompatActivity {
 
         }
         else{
+            setContentView(R.layout.activity_splash);
             Intent goToMainActivity = new Intent(Splash.this, MainActivity.class);
             goToMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(goToMainActivity);

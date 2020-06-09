@@ -2,6 +2,8 @@ package com.example.scopen;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
@@ -29,6 +31,10 @@ public class SideMenu {
     private ScopenInfo scopenInfo;
 
     private final ConstraintLayout sideMenuStatic;
+
+    public static float convertDpToPixel(float dp, Context context){
+        return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
 
     public SideMenu(Activity activity){
         //Main menu buttons
@@ -61,7 +67,9 @@ public class SideMenu {
 
         final ConstraintLayout networkMenu = activity.findViewById(R.id.networkMenu);
         //animations for networkMenu
-        final ValueAnimator networkMenuOpen = ValueAnimator.ofInt(networkMenu.getWidth(), 500);
+        final ValueAnimator networkMenuOpen = ValueAnimator.ofInt(
+                networkMenu.getWidth(),
+                (int)convertDpToPixel(150, mainActivity));
         networkMenuOpen.setDuration(300);
         networkMenuOpen.setInterpolator(new DecelerateInterpolator());
         networkMenuOpen.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -71,7 +79,9 @@ public class SideMenu {
                 networkMenu.requestLayout();
             }
         });
-        final ValueAnimator networkMenuClose = ValueAnimator.ofInt(500, 0);
+        final ValueAnimator networkMenuClose = ValueAnimator.ofInt(
+                (int)convertDpToPixel(150, mainActivity), 
+                0);
         networkMenuClose.setDuration(300);
         networkMenuClose.setInterpolator(new DecelerateInterpolator());
         networkMenuClose.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

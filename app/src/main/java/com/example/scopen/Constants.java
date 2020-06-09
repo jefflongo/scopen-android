@@ -4,6 +4,7 @@ abstract class Constants {
     static final String TAG = "DEBUG_LOG";
     static final String BROADCAST_INTENT = "ScopenData";
     static final String BROADCAST_VOLTAGE = "voltage";
+    static final String BROADCAST_VOLTAGE_ALL = "all voltage";
 
 
     static final byte DISCONNECTED = 0x00;

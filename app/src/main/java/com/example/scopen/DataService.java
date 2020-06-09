@@ -15,12 +15,14 @@ import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class DataService extends Service {
     private boolean mShouldRunThread = true;
     private boolean mProcessorThread = true;
+    private boolean stopCurrent = false;
     private LocalBroadcastManager mScopenServiceBroadcast;
     private ScopenReciever reciever;
     byte [] rawData;
@@ -79,13 +81,14 @@ public class DataService extends Service {
              if(rawData!=null) {
                 rawData = SampleProcessor.formatSamplesInOrder(rawData);
                 processedData = SampleProcessor.convertSamplesToVolt(rawData, gainParameters.getCurrentGain());
-                int currentWindowSize = (int) Math.ceil(10 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
+                rawData = null;
+                int currentWindowSize = (int) Math.ceil(5 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
                 int startindex = processedData.length/2 - currentWindowSize/2;
                 int endIndex =  processedData.length/2 + currentWindowSize/2;
-                for(int i = startindex; i<endIndex; i++) {
-                    lockData.acquireUninterruptibly();
-                    broadcastData(Constants.BROADCAST_VOLTAGE, (float) processedData[i]);
-                }
+                lockData.acquireUninterruptibly();
+                //broadcastData(Constants.BROADCAST_VOLTAGE_ALL, (float) processedData[i]);
+                 broadcastData(Constants.BROADCAST_VOLTAGE_ALL, Arrays.copyOfRange(processedData,startindex,endIndex));
+                //lockData.acquireUninterruptibly();
 
             }
         }
@@ -109,6 +112,12 @@ public class DataService extends Service {
         return Service.START_STICKY;
     }
 
+    private void broadcastData(final String key, double [] data){
+        Intent intent = new Intent(Constants.BROADCAST_INTENT);
+        intent.putExtra(key, data);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
     private void broadcastData(final String key, float value) {
         Intent intent = new Intent(Constants.BROADCAST_INTENT);
         intent.putExtra(key, value);
@@ -119,6 +128,7 @@ public class DataService extends Service {
         public void setSampleParametersIndex(int index){sampleParameters.setCurrentIndex(index);}
         public void setGainParametersIndex(int index){gainParameters.setCurrentIndex(index);}
         public void aquirePlotterSem(){lockData.acquireUninterruptibly();}
+        public void resetData(){stopCurrent = true;}
         public void finishedPlot() {lockData.release();}
     }
 }

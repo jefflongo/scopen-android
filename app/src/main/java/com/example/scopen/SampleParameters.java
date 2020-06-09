@@ -49,7 +49,7 @@ public class SampleParameters {
      */
     public SampleParameters(int select) {
         setCurrentIndex(select);
-        setSpeedLevel(lookUpSpeedLevel(select));
+        setSpeedLevel(lookUpSpeedLevel(timeDivValues[select]));
     }
 
     /**

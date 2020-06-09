@@ -40,7 +40,7 @@ import java.util.concurrent.Semaphore;
 public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
 
     private static final int MAX_SAMPLES = 50;
-    private static final int NUM_STEPS_X = 10;
+    private static final int NUM_STEPS_X = 5;
     private static final int NUM_STEPS_Y = 10;
     private static final int BG_COLOR = 0xFF47474E;
     private static final int LINE_COLOR = 0xFFFFFACD;
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         //yAxisLeft.enableGridDashedLine(10, 0, 0);
 
         // Configure x-axis
-        mMaxX = (float)sampleParameters.getTimeDiv()*10;
+        mMaxX = (float)sampleParameters.getTimeDiv()*5;
         mMinX = 0;
         XAxis xAxis = mChart.getXAxis();
         xAxis.setDrawGridLines(true);
@@ -150,7 +150,10 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             public void onReceive(Context context, Intent intent) {
                 if (mRunning) {
                     // TODO: there's probably a better choice than 0 here..
-                    addEntryFromPen(intent.getFloatExtra(Constants.BROADCAST_VOLTAGE, 0));
+                    //addEntryFromPen(intent.getFloatExtra(Constants.BROADCAST_VOLTAGE, 0));
+                    if(intent.hasExtra(Constants.BROADCAST_VOLTAGE_ALL)){
+                        addMultipleEntries(intent.getDoubleArrayExtra(Constants.BROADCAST_VOLTAGE_ALL));
+                    }
                 }
             }
         };
@@ -244,15 +247,27 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
             }
         }
         mDataSet.addEntry(new Entry(mDataSet.getEntryCount() * (float)sampleParameters.getSamplePeriod(), v));
-        Log.d(Constants.TAG, "\nEntries:");
-        for (Entry e : mDataSet.getValues()) {
-            Log.d(Constants.TAG, "(" + e.getX() + ", " + e.getY() + ")");
-        }
+//        Log.d(Constants.TAG, "\nEntries:");
+//        for (Entry e : mDataSet.getValues()) {
+//            Log.d(Constants.TAG, "(" + e.getX() + ", " + e.getY() + ")");
+//        }
 
         mChart.notifyDataSetChanged();
         mChart.invalidate();
         mDataService.finishedPlot();
         lockPlotter.release();
+    }
+
+    private void addMultipleEntries(double [] v){
+        lockPlotter.acquireUninterruptibly();
+        mDataSet.clear();
+        for(int i = 0; i<v.length; i++){
+            mDataSet.addEntry(new Entry(i*(float)sampleParameters.getSamplePeriod(), (float)v[i]));
+        }
+        mChart.notifyDataSetChanged();
+        mChart.invalidate();
+        lockPlotter.release();
+        mDataService.finishedPlot();
     }
 
     public void onRunStop(boolean running) { //changed to public so that SideMenu could access
@@ -361,11 +376,16 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     public void updateChartTimeDiv(){
         lockPlotter.acquireUninterruptibly();
         XAxis xAxis = mChart.getXAxis();
-        mMaxX = (float)sampleParameters.getTimeDiv()*10;
+        mMaxX = (float)sampleParameters.getTimeDiv()*5;
         mMinX = 0;
         xAxis.setAxisMinimum(mMinX);
         xAxis.setAxisMaximum(mMaxX);
         currentWindowSize = (int) Math.ceil(10 * sampleParameters.getTimeDiv() / sampleParameters.getSamplePeriod());
+        xAxis.setLabelCount(NUM_STEPS_X);
+        if(mRunning) {
+            mDataSet.clear();
+            mChart.notifyDataSetChanged();
+        }
         mChart.invalidate();
         lockPlotter.release();
     }
@@ -376,7 +396,9 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         mMinY = (float)gainParameters.getVoltDiv()*-5;
         yAxis.setAxisMinimum(mMinY);
         yAxis.setAxisMaximum(mMaxY);
+        yAxis.setLabelCount(NUM_STEPS_Y);
         mChart.invalidate();
+        mChart.notifyDataSetChanged();
        lockPlotter.release();
     }
 

@@ -136,6 +136,7 @@ public class SideMenu {
             public void onClick(View v) {
             if(!isConnected) {
                 mainActivity.mCommService.connectScopen(scopenInfo);
+                connect.setText("Connecting...");
             }else{
                 mainActivity.mCommService.disconnectScopen();
             }

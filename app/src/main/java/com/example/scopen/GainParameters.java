@@ -10,7 +10,7 @@ public class GainParameters {
    * Each gain value is corresponding to a voltage division.
    * Those values are determined by the Scopen hardware and firmware.
    */
-  public static double[] GAINS = {18, 9, 3.6, 1.8, 1.587, 0.7199997, 0.3599951, 0.1058, 0.036, 0.024};
+  public static double[] GAINS = {1, 1, 1, 1, 1, 0.36,0.18, 0.09, 0.036, 0.024};
   public static double[] VOLTDIV = {0.01,0.02,0.05,0.1,0.2,0.5,1.0,2.0,50.0,100.0};
   public static String[] VOLTLABEL = {"10mV","20mV","50mV","100mV","200mV","500mV","1V","2V","50V","100V"};
 
